@@ -13,7 +13,7 @@
 #       where ncr(x,y) is a combination of y items from x items. ncr(x,y) = (x!)/(y!)(x-y)!
 #
 # Note:
-#   - Using Elixir, I do not want to user List to construct (2), as it will
+#   - Using Elixir, I do not want to use List to construct (2), as it will
 #     be hard to be used on the last step (need to divide such list into 2 and
 #     reverse the latter half). Thus, I use the Map to store the count of each
 #     item under the key create from a Set of [i, k-i].
