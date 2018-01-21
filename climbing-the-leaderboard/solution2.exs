@@ -1,39 +1,18 @@
 # https://www.hackerrank.com/challenges/climbing-the-leaderboard/problem
 #
 #  Ideas:
-#   - We know that the leaderboard scores are sorted and alice scores
-#     are cumulative. The thing will be easy as we will calculate only alice's
-#     rank, while the leaderboard scores are not changed.
-#   - Firstly, we need to create the rank lookup by reading the leaderboard
-#     scores, then ignore the duplicate score, and increase the ranking by one
-#     as we progress.
-#   - With the lookup, we can now know the rank of alice at a specific score
-#     by using bisect approach. Let's see we have 100 ranks. Firstly, we guess
-#     that she ranks at the half position (50th). If the score at the position is
-#     greater than her score, then she is in the lower half rank (50th - 100th).
-#     We then try to guess that she is at the half position again (75th). Repeat
-#     this process until we reach at a particular position. From last position,
-#     if alice has an equal score, it's considered as alice's rank. If alice
-#     has higher score, then she is in that rank + 1, and if lower, she is in
-#     that rank - 1.
-#
-#  Notes:
-#     - This implementation works, but still has performance issue. It can not
-#       process the long list of leaderboard parsing.
-#     - If the leaderboard score would be changed anytime, this solution may
-#       not work that well as the lookup list is needed to be updated everytimes,
-#       and with the current implementation, it will loop through all score
-#       in the list, thus results in O(n^2).
-#     - To improve this if the leaderboard would be changed anytime, we may needed
-#       to use a balanced tree to store the data.
-#     - The very first implementation, I store all alice ranks in list before
-#       returning them all, but this is slow if there are lot of alice scores.
-#       Thus, each of her score is printed as it's processed (in solve()).
+#   - This is the second solution of this problem. It aims at
+#     fixing performance issue.
+#   - Based on the previous solution, the slow part is the leaderboard ranking
+#     lookup construction. It processed the list two times, first time to
+#     get rid of duplicate item, and next time is to mark the ranking.
+#   - Instead of doing that, we can process them all at once and use
+#     Map to store data. We remember the previous score as we process so
+#     that we can save time checking for duplication.
 
-defmodule Solution do
+defmodule Solution2 do
   def solve(scores, alice_scores) do
-    unique_scores = filter_unique_scores(scores)
-    lookup = score_lookup(unique_scores[:unique_scores])
+    lookup = better_score_lookup(scores)[:lookup]
     last_rank = length(Map.keys(lookup))
     IO.puts("lookup = #{inspect lookup}")
     IO.puts("last rank = #{last_rank}")
@@ -54,6 +33,24 @@ defmodule Solution do
       acc
       |> Map.replace(:last_rank, rank)
       |> Map.replace(:last_score, score)
+    end)
+  end
+
+  def better_score_lookup(scores) do
+    Enum.reduce(scores, %{current_rank: 1, lookup: %{}, last: nil}, fn(score, acc) ->
+      case acc[:last] do
+        nil ->
+          acc
+          |> Map.replace(:last, score)
+          |> Map.replace(:lookup, %{ acc[:current_rank] => score})
+          |> Map.replace(:current_rank, acc[:current_rank] + 1)
+        ^score -> acc
+        _ ->
+          acc
+          |> Map.replace(:last, score)
+          |> Map.replace(:lookup, Map.put(acc[:lookup], acc[:current_rank], score))
+          |> Map.replace(:current_rank, acc[:current_rank] + 1)
+      end
     end)
   end
 
@@ -107,15 +104,8 @@ defmodule Solution do
 
 end
 
-# _ = String.trim(IO.gets("")) |> String.to_integer
-# scores = String.trim(IO.gets("")) |> String.split(" ") |> Enum.map(fn(i) -> String.to_integer(i) end)
-# _ = String.trim(IO.gets("")) |> String.to_integer
-# alice_scores = String.trim(IO.gets("")) |> String.split(" ") |> Enum.map(fn(i) -> String.to_integer(i) end)
-# result = Solution.solve(scores, alice_scores)
-
 _ = String.trim(IO.gets("Input total current scores:")) |> String.to_integer
 scores = String.trim(IO.gets("Input current scores:")) |> String.split(" ") |> Enum.map(fn(i) -> String.to_integer(i) end)
 _ = String.trim(IO.gets("Input total alice scores")) |> String.to_integer
 alice_scores = String.trim(IO.gets("Input alice scores")) |> String.split(" ") |> Enum.map(fn(i) -> String.to_integer(i) end)
-result = Solution.solve(scores, alice_scores)
-# #Enum.each(result[:ranks], fn(rank) -> IO.puts(rank) end)
+result = Solution2.solve(scores, alice_scores)
