@@ -64,13 +64,6 @@ defmodule Solution2 do
     end)
   end
 
-  def score_lookup(scores) do
-    Enum.reduce(Enum.with_index(scores), %{}, fn(pair, acc) ->
-      {score, rank} = pair
-      Map.put(acc, rank + 1, score)
-    end)
-  end
-
   def compute_rank(lookup, score, upper_bound_rank, lower_bound_rank) when upper_bound_rank == lower_bound_rank do
     IO.puts("---- root : score = #{score}, lookup[:upper_bound_rank] = #{lookup[upper_bound_rank]}")
     cond do
@@ -79,7 +72,7 @@ defmodule Solution2 do
       score < lookup[upper_bound_rank] -> upper_bound_rank + 1
     end
   end
-  def compute_rank(lookup, score, upper_bound_rank, lower_bound_rank) when lower_bound_rank < upper_bound_rank   do
+  def compute_rank(lookup, score, upper_bound_rank, lower_bound_rank) when lower_bound_rank < upper_bound_rank do
     compute_rank(lookup, score, lower_bound_rank, lower_bound_rank)
   end
   def compute_rank(lookup, score, upper_bound_rank, lower_bound_rank) do
