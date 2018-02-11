@@ -1,4 +1,4 @@
-# https://www.hackerrank.com/challenges/save-the-prisoner/problem
+# https://www.hackerrank.com/challenges/circular-array-rotation/problem
 #
 #  Ideas:
 #   - Use recurive to rotate items
